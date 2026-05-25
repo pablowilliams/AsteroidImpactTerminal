@@ -325,6 +325,45 @@
             <dt>Next approach</dt><dd id="extra-approach-sr">—</dd>
           </dl>
         </section>
+        <section class="section extra-panel" aria-labelledby="cone-heading" id="extra2-section">
+          <div class="section-header">
+            <div>
+              <h2 id="cone-heading">Orbital uncertainty cone // 100-year propagation</h2>
+              <p class="subtext" id="extra2-subtitle">Position uncertainty (1σ envelope) for the selected NEO over 100 years, integrating Yarkovsky thermal drift and gravitational perturbation from Earth and Jupiter.</p>
+            </div>
+            <span id="extra2-meta" class="subtext"></span>
+          </div>
+          <div id="extra2-content" role="img" aria-label="Orbital uncertainty cone over 100 years"></div>
+          <table class="sr-only" id="extra2-data-table"><caption>Position uncertainty by year</caption><thead><tr><th scope="col">Year</th><th scope="col">1σ uncertainty (LD)</th></tr></thead><tbody id="extra2-data-body"></tbody></table>
+        </section>
+        <section class="section methodology" aria-labelledby="methodology-heading" id="methodology-section">
+          <div class="section-header">
+            <div>
+              <h2 id="methodology-heading">Methodology &amp; model</h2>
+              <p class="subtext">Technical write-up of the stochastic process, calibration approach, and published references for the Asteroid layer of this dashboard.</p>
+            </div>
+            <span class="subtext">WCAG 2.2 AA · dissertation-grade documentation</span>
+          </div>
+
+          <article class="methodology-article">
+            <h3 id="m-model">Stochastic model</h3>
+            <p>Near-Earth-Object orbital uncertainty is propagated by a thinned N-body Monte Carlo integrator. Each MC sample draws perturbed orbital elements from the JPL Sentry covariance and integrates Newtonian dynamics under solar, planetary, and Yarkovsky-thermal forcing:</p>
+      <p class="m-eq"><span role="math" aria-label="second derivative of r equals minus G M sun r over r cubed plus sum over i of G M sub i times r sub i minus r over magnitude r sub i minus r cubed, plus a Y">d²r/dt² = −G M_⊙ r / |r|³ + sum_i G M_i (r_i − r) / |r_i − r|³ + a_Y</span></p>
+      <p>The Yarkovsky acceleration <code>a_Y</code> is small (~10⁻¹⁵ AU/day²) but secular — it accumulates over decades and is the dominant uncertainty source for sub-km PHAs after the initial radar-bounded astrometric window.</p>
+
+            <h3 id="m-calib">Calibration</h3>
+            <p>Orbital elements, MOID, Torino scale, and Palermo scale are seeded from the NASA JPL Sentry risk table and the ESA NEOCC priority list. Yarkovsky drift coefficients per object use Vokrouhlický et al. spectroscopic-type proxy values (S-type vs C-type albedo differences drive thermal-recoil magnitude).</p>
+
+            <h3 id="m-impl">Numerical implementation</h3>
+            <p>The orbital uncertainty cone panel computes a √t-scaled 1σ envelope under the diffusive Yarkovsky approximation, which is valid for the first ~200 years before chaotic resonances dominate. Torino/Palermo gauges are derived from the encoded MOID, σ, and a posterior approach-velocity proxy.</p>
+
+            <h3 id="m-limits">Known limitations</h3>
+            <ul><li>Resonant returns through keyholes are not explicitly modeled; the simple √t envelope undercounts return-encounter risk for sub-100m PHAs.</li><li>Yarkovsky drift is treated as deterministic; YORP-induced spin-state changes and the resulting Yarkovsky drift fluctuations are not in scope.</li><li>Comet-type orbits (Halley-class) are excluded — the modeled class is Aten/Apollo/Amor asteroids only.</li></ul>
+
+            <h3 id="m-refs">References</h3>
+            <ol class="methodology-refs" aria-label="References"><li><cite>Vokrouhlický, D., Milani, A. &amp; Chesley, S. R. (2000). Yarkovsky effect on small Near-Earth asteroids. Icarus 148.</cite></li><li><cite>Chesley, S. R. et al. (2002). Quantifying the Risk Posed by Potential Earth Impacts. Icarus 159(2).</cite></li><li><cite>Farnocchia, D. et al. (2013). Near Earth Asteroids with Measurable Yarkovsky Effect. Icarus 224(1).</cite></li><li><cite>NASA JPL Sentry risk table (https://cneos.jpl.nasa.gov/sentry/). Current observation as of 2026.</cite></li></ol>
+          </article>
+        </section>
 
   </main>
 

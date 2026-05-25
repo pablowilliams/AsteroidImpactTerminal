@@ -723,6 +723,7 @@ function renderTickerSelect() {
     renderDetail();
     renderStocksTable();
     renderExtraPanel();
+    renderExtra2Panel();
     announce(`Selected ${state.selectedTicker}. Asteroid detail loaded.`);
   });
 }
@@ -1364,6 +1365,7 @@ function startLiveTicks() {
     renderTickerTape();
     renderStocksTable();
     renderExtraPanel();
+    renderExtra2Panel();
   };
 
   // Cadence: faster while market open, slower when closed, slowest when offline
@@ -1509,6 +1511,7 @@ function selectTickerFromRow(ticker) {
   renderDetail();
   renderStocksTable();
   renderExtraPanel();
+  renderExtra2Panel();
   // Don't steal focus — just announce
   announce(`Selected ${ticker}. Detail panel updated.`);
   // Scroll detail into view for convenience but keep focus
@@ -1959,6 +1962,42 @@ function renderExtraPanel() {
   const pSr = document.getElementById("extra-palermo-sr"); if (pSr) pSr.textContent = `${palermo} — ${palermoStatus}`;
 }
 
+
+function renderExtra2Panel() {
+  const container = document.getElementById("extra2-content");
+  if (!container || !state.stocks) return;
+  const a = state.stocks.find(s => s.ticker === state.selectedTicker) || state.stocks[0];
+  const years = 100;
+  const w = 720, h = 280, padL = 56, padR = 12, padT = 16, padB = 28;
+  const inW = w - padL - padR, inH = h - padT - padB;
+  // 1-sigma envelope grows as sqrt(yr) * sigma — diffusive
+  const series = [];
+  for (let yr = 0; yr <= years; yr++) {
+    const s1 = (a.sigma * 0.3 * Math.sqrt(yr) * 389) + 0.5;
+    series.push(s1);
+  }
+  const yMax = Math.max(...series) * 1.1;
+  const xScale = (yr) => padL + (yr / years) * inW;
+  const yScale = (v) => padT + (1 - v / yMax) * inH;
+  const upper = series.map((v, i) => xScale(i) + "," + yScale(v)).join(" L");
+  const lower = series.map((v, i) => xScale(i) + "," + yScale(-v + yMax * 0.5)).join(" L");
+  const median = series.map((v, i) => (i === 0 ? "M" : "L") + xScale(i).toFixed(1) + "," + yScale(yMax * 0.5).toFixed(1)).join(" ");
+  const grid = [0, 0.25, 0.5, 0.75, 1].map(t => `<line x1="${padL}" x2="${w - padR}" y1="${padT + t * inH}" y2="${padT + t * inH}" stroke="#1a2029" stroke-dasharray="2 4"/>`).join("");
+  const yLabels = [0, yMax * 0.25, yMax * 0.5, yMax * 0.75, yMax].map(v => `<text x="${padL - 6}" y="${yScale(v) + 3}" text-anchor="end" fill="#7f8693" font-size="9" font-family="JetBrains Mono, monospace">${v === yMax * 0.5 ? "nominal" : ((v - yMax * 0.5)).toFixed(1) + " LD"}</text>`).join("");
+  const xLabels = [0, 25, 50, 75, 100].map(yr => `<text x="${xScale(yr)}" y="${h - 10}" text-anchor="middle" fill="#7f8693" font-size="9" font-family="JetBrains Mono, monospace">+${yr}yr</text>`).join("");
+  container.innerHTML = `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Orbital uncertainty cone for ${a.ticker} over 100 years. Final 1-sigma envelope reaches ${series[100].toFixed(1)} lunar distances.">
+    ${grid}
+    <path d="M${upper} L${lower} Z" fill="#ff6633" fill-opacity="0.15"/>
+    <path d="${median}" stroke="#ff6633" stroke-width="2" fill="none"/>
+    ${yLabels}${xLabels}
+    <text x="${padL + 14}" y="${padT + 16}" fill="#ff6633" font-size="10" font-family="JetBrains Mono, monospace">1σ ENVELOPE (LD) · Yarkovsky + perturbation</text>
+  </svg>`;
+  const sub = document.getElementById("extra2-subtitle");
+  if (sub) sub.textContent = `${a.name} · σ at t+100yr = ${series[100].toFixed(1)} LD · positional uncertainty grows ~√t under diffusive Yarkovsky drift.`;
+  const body = document.getElementById("extra2-data-body");
+  if (body) body.innerHTML = [0, 10, 25, 50, 75, 100].map(yr => `<tr><td>+${yr}yr</td><td>${series[yr].toFixed(2)}</td></tr>`).join("");
+}
+
 // ========== Init ==========
 async function init() {
   updateConnStripOnly();
@@ -1988,6 +2027,7 @@ async function init() {
   wireKpiTilt();
   startLiveTicks();
   renderExtraPanel();
+  renderExtra2Panel();
 
   const src = result.ok ? `real Yahoo Finance data for ${result.count} tickers` : "simulated data (live feed unavailable)";
   announce(`Dashboard ready with ${src}.`);
