@@ -85,7 +85,7 @@
 
       <div class="strategy-bar">
         <fieldset class="strategy-fieldset">
-          <legend>Trading strategies <span class="legend-hint">pick one or more — signals combine</span></legend>
+          <legend>Risk-propagation strategies <span class="legend-hint">pick one or more — signals combine</span></legend>
           <div class="strategy-options" id="strategy-options"></div>
         </fieldset>
       </div>
@@ -370,6 +370,7 @@
           <nav aria-labelledby="methodology-toc-heading" class="methodology-toc">
             <h3 id="methodology-toc-heading">On this page</h3>
             <ol>
+              <li><a href="#m-abstract">Abstract</a></li>
               <li><a href="#m-model">Stochastic model</a></li>
               <li><a href="#m-calib">Calibration</a></li>
               <li><a href="#m-impl">Numerical implementation</a></li>
@@ -383,6 +384,9 @@
           </nav>
 
           <article class="methodology-article">
+            <h3 id="m-abstract">Abstract</h3>
+            <p>This dashboard implements a thinned N-body orbital-uncertainty propagator over Near-Earth Objects from the JPL Sentry and ESA NEOCC risk tables. Initial orbital elements are perturbed by the published astrometric covariance and integrated under Solar, planetary, and Yarkovsky-thermal forcing to compute impact-probability posteriors at the b-plane (<cite>Yeomans &amp; Chodas, 1994</cite>). The Yarkovsky non-gravitational drift, measured directly for Bennu by OSIRIS-REx ranging (<cite>Chesley et al., 2014</cite>), dominates uncertainty at 30+ year horizons for sub-km PHAs (<cite>Vokrouhlický et al., 2000</cite>; <cite>Farnocchia et al., 2013</cite>). The Torino integer scale (<cite>Binzel, 2000</cite>) and Palermo log-ratio (<cite>Chesley et al., 2002</cite>) are derived from the impact-probability posterior and not independent inputs.</p>
+
             <h3 id="m-model">Stochastic model</h3>
             <p>Quantifying the probability that a Near-Earth Object (NEO) will impact Earth requires propagating its orbit with uncertainty through decades-to-centuries of dynamical evolution. Initial orbital elements are estimated from astrometric observations and have a covariance matrix that quantifies our uncertainty. As the orbit evolves under gravity from the Sun and planets — plus subtle non-gravitational forces — the uncertainty cone <em>diffuses</em> along the orbit and can intersect Earth's position at a future encounter date.</p>
       <p>The full N-body equation of motion includes the Sun, the eight planets, and (for sub-km PHAs) the Yarkovsky thermal-recoil acceleration:</p>
