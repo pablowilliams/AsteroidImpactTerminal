@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-05-25T00:14:27.236Z",
+  "generatedAt": "2026-05-25T00:38:25.768Z",
   "source": "synthetic",
   "tickers": {
     "APOPHIS": {
       "ticker": "APOPHIS",
       "price": 7.5,
       "prevClose": 7.557246836832954,
-      "ts": 1779668067236,
+      "ts": 1779669505768,
       "currency": "USD",
       "exchange": "SIM",
       "closes": [
@@ -106,7 +106,7 @@
       "ticker": "BENNU",
       "price": 8.4,
       "prevClose": 8.586168392626632,
-      "ts": 1779668067236,
+      "ts": 1779669505768,
       "currency": "USD",
       "exchange": "SIM",
       "closes": [
@@ -206,7 +206,7 @@
       "ticker": "YR4",
       "price": 4.2,
       "prevClose": 4.201373726647636,
-      "ts": 1779668067236,
+      "ts": 1779669505768,
       "currency": "USD",
       "exchange": "SIM",
       "closes": [
@@ -306,7 +306,7 @@
       "ticker": "DIDYMOS",
       "price": 13.2,
       "prevClose": 13.056717269179636,
-      "ts": 1779668067236,
+      "ts": 1779669505768,
       "currency": "USD",
       "exchange": "SIM",
       "closes": [
@@ -406,7 +406,7 @@
       "ticker": "TOUTATIS",
       "price": 18.7,
       "prevClose": 18.712006966464543,
-      "ts": 1779668067236,
+      "ts": 1779669505768,
       "currency": "USD",
       "exchange": "SIM",
       "closes": [
@@ -506,7 +506,7 @@
       "ticker": "ITOKAWA",
       "price": 22.1,
       "prevClose": 22.03619737227875,
-      "ts": 1779668067236,
+      "ts": 1779669505768,
       "currency": "USD",
       "exchange": "SIM",
       "closes": [
@@ -606,7 +606,7 @@
       "ticker": "RYUGU",
       "price": 14,
       "prevClose": 14.026449636269199,
-      "ts": 1779668067236,
+      "ts": 1779669505768,
       "currency": "USD",
       "exchange": "SIM",
       "closes": [
@@ -706,7 +706,7 @@
       "ticker": "DUENDE",
       "price": 4.5,
       "prevClose": 4.558263049050434,
-      "ts": 1779668067236,
+      "ts": 1779669505768,
       "currency": "USD",
       "exchange": "SIM",
       "closes": [
@@ -806,7 +806,7 @@
       "ticker": "ICARUS",
       "price": 3.4,
       "prevClose": 3.4719956832080086,
-      "ts": 1779668067236,
+      "ts": 1779669505768,
       "currency": "USD",
       "exchange": "SIM",
       "closes": [
@@ -906,7 +906,7 @@
       "ticker": "SISYPHUS",
       "price": 16.5,
       "prevClose": 16.627027346519732,
-      "ts": 1779668067236,
+      "ts": 1779669505768,
       "currency": "USD",
       "exchange": "SIM",
       "closes": [
@@ -1006,7 +1006,7 @@
       "ticker": "GEOGRAPHOS",
       "price": 9.8,
       "prevClose": 10.025586113582738,
-      "ts": 1779668067236,
+      "ts": 1779669505768,
       "currency": "USD",
       "exchange": "SIM",
       "closes": [
@@ -1106,7 +1106,7 @@
       "ticker": "FLORENCE",
       "price": 28.6,
       "prevClose": 28.40340971873903,
-      "ts": 1779668067236,
+      "ts": 1779669505768,
       "currency": "USD",
       "exchange": "SIM",
       "closes": [
