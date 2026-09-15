@@ -1,7 +1,7 @@
 "use strict";
 
 /* =========================================================================
-   SentimentTradingView — Monte Carlo dashboard
+   Domain-specific scenario analysis interface
    =========================================================================
    All data is mocked for the demo. Integration seams:
      - fetchPrices()        -> Polygon / Alpaca / Finnhub REST + WS
@@ -422,7 +422,7 @@ const state = {
 };
 
 // =======================================================================
-// ===== REAL-TIME DATA SOURCE (Yahoo Finance via CORS proxy) ============
+// ===== VERSIONED SCENARIO SNAPSHOT ============
 // =======================================================================
 
 const dataSource = {
@@ -574,17 +574,17 @@ function onConnModeChange(newMode, source) {
   if (newMode === "offline") {
     if (banner && !banner.dataset.dismissed) {
       banner.hidden = false;
-      setText("#feed-banner-text", "Live feed unavailable — showing simulated data.");
+      setText("#feed-banner-text", "Scenario snapshot unavailable — using embedded seed data.");
     }
     if (!dataSource.hasAnnouncedFallback && sess) {
-      sess.textContent = "Live data feed unavailable. Dashboard is using simulated prices.";
+      sess.textContent = "Versioned snapshot unavailable. Using embedded synthetic inputs.";
       dataSource.hasAnnouncedFallback = true;
     }
   } else if (newMode === "delayed") {
-    if (sess) sess.textContent = `Live feed delayed. Source: ${source || ""}.`;
+    if (sess) sess.textContent = `Snapshot check delayed. Source: ${source || ""}.`;
   } else if (newMode === "live") {
     if (banner && !banner.dataset.dismissed) banner.hidden = true;
-    if (sess) sess.textContent = `Live feed active. Source: ${source || "YF"}.`;
+    if (sess) sess.textContent = `Scenario snapshot loaded. Source: ${source || "YF"}.`;
   }
 }
 
@@ -607,7 +607,7 @@ function updateMarketStatus() {
 // ========== Enrichment ==========
 function buildStocksRuntime() {
   const stocks = STARRED.map((s) => {
-    // Prefer real Yahoo history + calibrated mu/sigma when available
+    // Prefer versioned snapshot history and calibrated parameters when available
     const realHist = dataSource.realHistories[s.ticker];
     const cal = dataSource.realCalibrations[s.ticker];
     let history, mu, sigma, price, prevClose;
@@ -766,11 +766,11 @@ let kpisBuilt = false;
 const kpiDefs = () => {
   const k = state.portfolio;
   return [
-    { id: "kpi-value",  label: "Portfolio value", value: k.value,           fmt: (v) => dollarFmt(v), mod: "accent",                              sub: `${state.stocks.length} asteroids · equal weight` },
-    { id: "kpi-pnl",    label: "Today P&L",       value: k.pnl,             fmt: (v) => dollarFmt(v), mod: k.pnl >= 0 ? "positive" : "negative",  valueMod: k.pnl >= 0 ? "up" : "down", subHtml: deltaLabel(k.pnlPct) },
-    { id: "kpi-er",     label: "Expected return", value: k.expectedReturn,  fmt: (v) => pctFmt(v),    mod: k.expectedReturn >= 0 ? "positive" : "negative", valueMod: k.expectedReturn >= 0 ? "up" : "down", sub: `${state.horizon}-day · MC` },
-    { id: "kpi-var",    label: "95% VaR",         value: k.var95,           fmt: (v) => pctFmt(v),    mod: "negative", valueMod: "down",           sub: "5th percentile" },
-    { id: "kpi-sharpe", label: "Sharpe",          value: k.sharpe,          fmt: (v) => v.toFixed(2), mod: "accent",                              sub: "Ex-ante · rf 4.5%" },
+    { id: "kpi-value",  label: "Aggregate risk index", value: k.value,           fmt: (v) => dollarFmt(v), mod: "accent",                              sub: `${state.stocks.length} asteroids · equal weight` },
+    { id: "kpi-pnl",    label: "Current-step change",       value: k.pnl,             fmt: (v) => dollarFmt(v), mod: k.pnl >= 0 ? "positive" : "negative",  valueMod: k.pnl >= 0 ? "up" : "down", subHtml: deltaLabel(k.pnlPct) },
+    { id: "kpi-er",     label: "Mean trajectory drift", value: k.expectedReturn,  fmt: (v) => pctFmt(v),    mod: k.expectedReturn >= 0 ? "positive" : "negative", valueMod: k.expectedReturn >= 0 ? "up" : "down", sub: `${state.horizon}-day · MC` },
+    { id: "kpi-var",    label: "95% lower bound",         value: k.var95,           fmt: (v) => pctFmt(v),    mod: "negative", valueMod: "down",           sub: "5th percentile" },
+    { id: "kpi-sharpe", label: "Signal stability",          value: k.sharpe,          fmt: (v) => v.toFixed(2), mod: "accent",                              sub: "Normalised dispersion" },
     { id: "kpi-sent",   label: "Crowd score",     value: k.sentimentScore,  fmt: (v) => pctFmt(v, 0), mod: k.sentimentScore >= 0 ? "positive" : "negative", valueMod: k.sentimentScore >= 0 ? "up" : "down", sub: "X net · pos − neg" },
   ];
 };
@@ -823,11 +823,11 @@ function renderKPIs() {
     animateNumber(el, prev, r.value, r.fmt, 520);
     state.prevKpi[r.sel] = r.value;
   });
-  setText("#rail-er-sub", `Portfolio · ${state.horizon}d`);
+  setText("#rail-er-sub", `Watch set · ${state.horizon}d`);
   setText("#rail-buys-val", `${buys} / ${sells}`);
   setText("#rail-buys-sub", `${state.stocks.length} asteroids total`);
 
-  // Terminal strip
+   strip
   setText("#term-horizon", state.horizon + "D");
   setText("#term-paths", state.sims >= 1000 ? (state.sims / 1000) + "K" : String(state.sims));
   setText("#term-seed", String(state.seed));
@@ -1054,7 +1054,7 @@ function renderChart(mc, stock, onComplete) {
   for (let i = 0; i <= 4; i++) gridVals.push(yMin + (yMax - yMin) * (i / 4));
 
   const s = mc.summary;
-  const captionText = `${mc.nPaths.toLocaleString()} Monte Carlo paths over ${mc.days} trading days. Expected return ${pctFmt(s.expectedReturn)}, median ${pctFmt(s.medianReturn)}, 95% CI ${pctFmt(s.ci95Low)} to ${pctFmt(s.ci95High)}, probability of gain ${(s.probUp * 100).toFixed(0)}%.`;
+  const captionText = `${mc.nPaths.toLocaleString()} Monte Carlo paths over ${mc.days} propagation steps. Mean trajectory drift ${pctFmt(s.expectedReturn)}, median ${pctFmt(s.medianReturn)}, 95% CI ${pctFmt(s.ci95Low)} to ${pctFmt(s.ci95High)}, probability of gain ${(s.probUp * 100).toFixed(0)}%.`;
   const chartAriaLabel = `${stock.ticker} Monte Carlo chart. ${captionText}`;
 
   // Build frame SVG with placeholders that will be animated in
@@ -1093,7 +1093,7 @@ function renderChart(mc, stock, onComplete) {
     ["Start price", priceFmt(mc.S0)],
     ["Paths simulated", mc.nPaths.toLocaleString()],
     ["Horizon (days)", mc.days],
-    ["Expected return", pctFmt(s.expectedReturn)],
+    ["Mean trajectory drift", pctFmt(s.expectedReturn)],
     ["Median return", pctFmt(s.medianReturn)],
     ["5th percentile", pctFmt(s.ci95Low)],
     ["95th percentile", pctFmt(s.ci95High)],
@@ -1407,7 +1407,7 @@ function wireEvents() {
         const er = state.mcResult && state.mcResult.summary
           ? pctFmt(state.mcResult.summary.expectedReturn)
           : "—";
-        announce(`Simulation complete for ${state.selectedTicker}. Expected return ${er}.`);
+        announce(`Simulation complete for ${state.selectedTicker}. Mean trajectory drift ${er}.`);
       });
     }, 30);
   });
@@ -1431,7 +1431,7 @@ function wireEvents() {
     }
     state.portfolio = computePortfolioKpis(state.stocks);
     renderAll();
-    announce(`Horizon set to ${state.horizon} trading days.`);
+    announce(`Horizon set to ${state.horizon} propagation steps.`);
   });
 
   // Seed
@@ -1490,7 +1490,7 @@ function wireEvents() {
       renderAll();
       banner.hidden = true;
     } else {
-      setText("#feed-banner-text", "Live feed still unavailable. Continuing with simulation.");
+      setText("#feed-banner-text", "Snapshot still unavailable. Continuing with embedded inputs.");
     }
   });
 
@@ -1728,7 +1728,7 @@ function setGauge(arcEl, needleEl, ratio, statusLabelEl, value, fmt, thresholds)
 }
 function renderGauges() {
   const k = state.portfolio;
-  // Sharpe: map [-1, 3] -> [0, 1]
+  // Signal stability: map [-1, 3] -> [0, 1]
   const sharpeRatio = Math.max(0, Math.min(1, (k.sharpe + 1) / 4));
   const sharpeStatus =
     k.sharpe >= 1.5 ? "excellent" :
@@ -1736,7 +1736,7 @@ function renderGauges() {
     k.sharpe >= 0.3 ? "moderate" :
     k.sharpe >= 0   ? "weak" : "negative";
   setGauge($("#gauge-sharpe-arc"), $("#gauge-sharpe-needle"), sharpeRatio);
-  $("#gauge-sharpe").setAttribute("aria-label", `Sharpe ${k.sharpe.toFixed(2)}, ${sharpeStatus} (target > 1.0)`);
+  $("#gauge-sharpe").setAttribute("aria-label", `Signal stability ${k.sharpe.toFixed(2)}, ${sharpeStatus} (target > 1.0)`);
   setText("#rail-sharpe-sub", `Ex-ante · ${sharpeStatus}`);
 
   // VaR: more negative = worse. map [-0.30, 0] -> [1, 0] (more red = fuller arc)
@@ -1748,76 +1748,6 @@ function renderGauges() {
   setGauge($("#gauge-var-arc"), $("#gauge-var-needle"), varRatio);
   $("#gauge-var").setAttribute("aria-label", `Value at Risk 95 percent, ${pctFmt(k.var95)}, ${varStatus}`);
   setText("#rail-var-sub", `5th pct · ${varStatus}`);
-}
-
-// --- Boot sequence (feature 8) ---------------------------------------
-function runBootSequence(onComplete) {
-  const overlay = $("#boot-overlay");
-  if (!overlay) { onComplete(); return; }
-  const alreadySeen = sessionStorage.getItem("ait.booted") === "1";
-  if (alreadySeen || prefersReducedMotion()) {
-    overlay.hidden = true;
-    onComplete();
-    return;
-  }
-  overlay.hidden = false;
-  const log = $("#boot-log");
-  const skipBtn = $("#boot-skip");
-  let cancelled = false;
-  let timers = [];
-
-  const finish = () => {
-    if (cancelled) return;
-    cancelled = true;
-    timers.forEach(clearTimeout);
-    sessionStorage.setItem("ait.booted", "1");
-    overlay.classList.add("fadeout");
-    setTimeout(() => { overlay.hidden = true; onComplete(); }, 440);
-  };
-
-  skipBtn.addEventListener("click", finish, { once: true });
-  const escHandler = (e) => { if (e.key === "Escape") { finish(); document.removeEventListener("keydown", escHandler); } };
-  document.addEventListener("keydown", escHandler);
-  skipBtn.focus();
-
-  const lines = [
-    "> AIT-TERMINAL v4.7  (c) asteroidimpactterminal",
-    "> booting kernel ........................ <span class='ok'>OK</span>",
-    "> mounting asteroid watchlist ........ <span class='ok'>OK</span>",
-    `> loading ${STARRED.length} asteroids .................... <span class='ok'>OK</span>`,
-    "> initializing monte carlo engine (GBM) .. <span class='ok'>OK</span>",
-    "> hooking AIT sentiment stream ........ <span class='ok'>OK</span>",
-    "> warming strategy voters ................ <span class='ok'>OK</span>",
-    "> session ready. <span class='cursor'></span>",
-  ];
-  let out = "";
-  const typeLine = (i) => {
-    if (cancelled) return;
-    if (i >= lines.length) { timers.push(setTimeout(finish, 420)); return; }
-    const line = lines[i];
-    let j = 0;
-    const step = () => {
-      if (cancelled) return;
-      // fast type, respecting tag boundaries
-      const next = line.indexOf("<", j);
-      if (next === -1) {
-        out += line.slice(j);
-        j = line.length;
-      } else if (next > j) {
-        out += line[j];
-        j++;
-      } else {
-        const close = line.indexOf(">", j);
-        out += line.slice(j, close + 1);
-        j = close + 1;
-      }
-      log.innerHTML = out;
-      if (j < line.length) timers.push(setTimeout(step, 12));
-      else { out += "\n"; log.innerHTML = out; timers.push(setTimeout(() => typeLine(i + 1), 90)); }
-    };
-    step();
-  };
-  typeLine(0);
 }
 
 // --- Chart crosshair (feature 10) ------------------------------------
@@ -2110,13 +2040,10 @@ async function init() {
   updateConnStripOnly();
   updateMarketStatus();
 
-  // Try real Yahoo Finance bootstrap in background; stocks are built either way
+  // Load the versioned synthetic scenario snapshot before rendering
   const bootstrapPromise = dataSource.bootstrap(STARRED.map((s) => s.ticker)).catch(() => ({ ok: false }));
 
-  // Kick off boot sequence in parallel so UI feels responsive
-  runBootSequence(() => {
-    announce("Dashboard ready.");
-  });
+  announce("Dashboard ready.");
 
   const result = await bootstrapPromise;
 
@@ -2138,7 +2065,7 @@ async function init() {
   renderExtra3Panel();
   renderExtra4Panel();
 
-  const src = result.ok ? `real Yahoo Finance data for ${result.count} tickers` : "simulated data (live feed unavailable)";
+  const src = result.ok ? `versioned synthetic snapshot for ${result.count} tickers` : "embedded seed data (snapshot unavailable)";
   announce(`Dashboard ready with ${src}.`);
 }
 

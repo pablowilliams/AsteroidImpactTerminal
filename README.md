@@ -1,39 +1,24 @@
-# AsteroidImpactTerminal
+# Close Approach Desk
 
-Terminal-style Monte Carlo dashboard for Near-Earth Objects with orbital-uncertainty propagation, Torino and Palermo scale gauges, and astronomy-community chatter sentiment.
+A browser-based scenario desk for reviewing a small, fixed catalogue of near-Earth objects. It focuses on inspectable assumptions: the selected object, propagation horizon, random seed and simulated uncertainty paths remain visible throughout the workflow.
 
-## Features
+## What it demonstrates
 
-- **Monte Carlo simulation** — Geometric Brownian Motion engine, configurable paths (100 / 1k / 10k) and horizons (5 / 30 / 90 / 252 periods).
-- **Asteroid watchlist** — 12 asteroids (APOPHIS, BENNU, YR4, DIDYMOS, TOUTATIS…).
-- **Live tick simulation** — synthetic ticks every few seconds with deterministic seed for reproducibility.
-- **Strategy signals** — WATCH / MONITOR / CLEAR derived from Approach MA Cross, Trajectory MR, Encounter Momentum, Keyhole Skew, NEO Chatter.
-- **AIT chatter panel** — positive / neutral / negative sentiment with sample posts per asteroid.
-- **Asteroid KPIs** — aggregate value, P&L, expected return, 95% VaR, Sharpe, sentiment.
-- **Custom panel** — Torino (0–10) and Palermo (−10 to +2) hazard scale gauges per NEO.
-- **Accessible by default** — WCAG 2.2 AA: keyboard nav, ARIA live regions, screen-reader chart alternatives, 4.5:1 contrast in dark mode.
+- Deterministic scenario generation with selectable path counts and horizons.
+- Object-level comparison using close-approach distance, MOID-derived indicators and Torino/Palermo context.
+- Keyboard-accessible tables, controls and text alternatives for charts.
+- A deliberately labelled synthetic snapshot that works without API keys.
 
-## Running
+The numerical series are synthetic teaching data. This is not an impact-warning service and must not be used as an alternative to JPL Sentry or ESA NEOCC.
 
-No build step. Live at https://pablowilliams.github.io/AsteroidImpactTerminal/.
-
-For local development, any static server works:
+## Run locally
 
 ```bash
 python3 -m http.server 8000
-# then visit http://localhost:8000
 ```
 
-## Data pipeline
+Open `http://localhost:8000`. The published version is available through GitHub Pages.
 
-The dashboard reads `data/quotes.json` on load and on each tick. A scheduled GitHub Action (`.github/workflows/refresh-data.yml`) regenerates synthetic close histories every hour so the visible data evolves. Replace the generator with a real data source to go live.
+## Engineering note
 
-## Architecture
-
-- `index.html` — semantic layout, landmarks, headings
-- `app.js` — data, Monte Carlo engine, sentiment, signal logic, rendering
-- `styles.css` — dark terminal theme with AA-contrast tokens
-
-## License
-
-Private. All rights reserved.
+This project reuses a deterministic scenario kernel also exercised in four sibling studies. The domain adapter, terminology, data schema and specialist panels are specific to close-approach review; the shared kernel is intentionally disclosed rather than presented as five unrelated implementations.
